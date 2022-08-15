@@ -1,5 +1,14 @@
 @import-normalize; /* bring in normalize.css styles */
 
+:root{
+--background-color: #FFFFF7;
+--color: #444444;
+--color-button: #1D628B;
+--color-label:  #73B1D6;
+--color-input: #4589B0;
+--color-warning: #e90707;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -71,12 +80,4 @@ a{
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-:root{
---background-color: #FFFFF7;
---color: #444444;
---color-button: #1D628B;
---color-label:  #73B1D6;
---color-input: #4589B0;
 }

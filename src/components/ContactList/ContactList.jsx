@@ -1,14 +1,13 @@
 import { Item, ButtonClose, Contact } from './ContactList.styled';
 import { PropTypes } from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { deleteItem } from '../../redux/contactSlice';
+import { useDeleteContactMutation } from '../../redux/contacs/contactsSlice';
 
-const ContactList = ({ visibleContacts }) => {
-	const dispatch = useDispatch();
+const ContactList = ({ contacts }) => {
+	const [deleteContact] = useDeleteContactMutation();
 	return (
 		<ul>
-			{visibleContacts &&
-				visibleContacts.map(({ id, name, number }) => {
+			{contacts &&
+				contacts.map(({ id, name, number }) => {
 					return (
 						<Item key={id}>
 							<Contact>
@@ -16,7 +15,7 @@ const ContactList = ({ visibleContacts }) => {
 							</Contact>
 							<ButtonClose
 								type="button"
-								onClick={() => dispatch(deleteItem(id))}
+								onClick={() => deleteContact(id)}
 							>
 								x
 							</ButtonClose>
@@ -28,7 +27,7 @@ const ContactList = ({ visibleContacts }) => {
 };
 
 ContactList.propTypes = {
-	visibleContacts: PropTypes.array,
+	contacts: PropTypes.array,
 };
 
 export default ContactList;

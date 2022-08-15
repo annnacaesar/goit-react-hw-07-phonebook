@@ -1,39 +1,32 @@
+import { useState } from 'react';
 import { AppContainer, Container, TitleMain, Title } from './App.styled';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
-import { useSelector, useDispatch } from 'react-redux';
-import { addItem } from '../../redux/contactSlice';
-import { getContact, getFilterWord } from '../../redux/selectors';
+import { ToastContainer } from 'react-toastify';
 import ContactList from '../ContactList';
 import ContactForm from '../ContactForm';
 import Filter from '../Filter';
+import { useGetContactsQuery } from '../../redux/contacs/contactsSlice';
+import { ThreeCircles } from 'react-loader-spinner';
 
 export const App = () => {
-	const dispatch = useDispatch();
+	const [filter, setFilter] = useState('');
+	const { data, isFetching } = useGetContactsQuery();
 
-	const contacts = useSelector(getContact);
-	const filterWord = useSelector(getFilterWord);
-
-	const addContact = contactObj => {
-		const findContact = contacts.find(contact =>
-			contact.name.toLowerCase().includes(contactObj.name.toLowerCase())
-		);
-		findContact
-			? toast.info(`${contactObj.name} is already in contact`)
-			: dispatch(addItem(contactObj));
+	const changeFilter = event => {
+		setFilter(event.currentTarget.value);
 	};
 
 	const isVisibleContacts = () => {
-		if (filterWord) {
-			const normalizeFilter = filterWord.toLowerCase();
+		const normalizeFilter = filter.toLowerCase();
 
-			if (contacts.length !== 0) {
-				return contacts.filter(contact =>
+		if (data) {
+			if (data.length !== 0) {
+				return data.filter(contact =>
 					contact.name.toLowerCase().includes(normalizeFilter)
 				);
 			}
 		}
-		return contacts;
+		return;
 	};
 
 	return (
@@ -52,12 +45,13 @@ export const App = () => {
 			/>
 			<Container>
 				<TitleMain>Phonebook</TitleMain>
-				<ContactForm onSubmit={addContact} />
+				<ContactForm />
 			</Container>
 			<Container>
 				<Title>Contacts</Title>
-				<Filter />
-				<ContactList visibleContacts={isVisibleContacts()} />
+				{isFetching && <ThreeCircles color="var(--color-button)" />}
+				<Filter filter={filter} onChange={changeFilter} />
+				<ContactList contacts={isVisibleContacts()} />
 			</Container>
 		</AppContainer>
 	);

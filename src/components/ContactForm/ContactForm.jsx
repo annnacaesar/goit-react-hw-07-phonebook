@@ -1,74 +1,65 @@
-import { useState } from 'react';
+import { Formik } from 'formik';
+import { toast } from 'react-toastify';
 import {
 	Input,
 	InputContainer,
 	ButtonSubmit,
-	Form,
+	FormStyled,
+	Error,
 } from './ContactForm.styled';
-import { nanoid } from 'nanoid';
+import { schema } from 'helpers/validation-yup';
+import {
+	useGetContactsQuery,
+	useCreateContactMutation,
+} from '../../redux/contacs/contactsSlice';
 
-const ContactForm = ({ onSubmit }) => {
-	const [name, setName] = useState('');
-	const [number, setNumber] = useState('');
+const initialValues = {
+	name: '',
+	number: '',
+};
 
-	const handleInputChange = event => {
-		const { value } = event.currentTarget;
-		event.currentTarget.name === 'name' ? setName(value) : setNumber(value);
-	};
+const ContactForm = () => {
+	const [createContact, { isLoading }] = useCreateContactMutation();
+	const { data } = useGetContactsQuery();
 
-	const contactObj = (name, number) => {
-		return {
-			id: nanoid(),
-			name,
-			number,
-		};
-	};
-
-	const handleSubmit = event => {
-		event.preventDefault();
-
-		const contact = contactObj(name, number);
-		onSubmit(contact);
-		reset();
-	};
-
-	const reset = () => {
-		setName('');
-		setNumber('');
+	const handleSubmit = (values, { resetForm }) => {
+		const findContact = data.find(contact =>
+			contact.name.toLowerCase().includes(values.name.toLowerCase())
+		);
+		findContact
+			? toast.info(`${values.name} is already in contact`)
+			: createContact(values);
+		resetForm();
 	};
 
 	return (
-		<Form onSubmit={handleSubmit}>
-			<InputContainer>
-				<label>
-					<Input
-						type="text"
-						name="name"
-						pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-						title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-						value={name}
-						onChange={handleInputChange}
-						required
-					/>
-					Name
-				</label>
+		<Formik
+			initialValues={initialValues}
+			onSubmit={handleSubmit}
+			validationSchema={schema}
+		>
+			{({ errors, touched, isValidating }) => (
+				<FormStyled>
+					<InputContainer>
+						<label>
+							<Input type="text" name="name" />
+							Name
+							<Error component="div" name="name" />
+						</label>
 
-				<label>
-					<Input
-						type="tel"
-						name="number"
-						pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-						title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-						value={number}
-						onChange={handleInputChange}
-						required
-					/>
-					Phone number
-				</label>
-			</InputContainer>
+						<label>
+							<Input type="tel" name="number" />
+							Phone number
+							<Error component="div" name="number" />
+						</label>
+					</InputContainer>
 
-			<ButtonSubmit type="submit">ADD CONTACT</ButtonSubmit>
-		</Form>
+					<ButtonSubmit type="submit" disabled={isLoading}>
+						ADD CONTACT
+					</ButtonSubmit>
+				</FormStyled>
+			)}
+		</Formik>
 	);
 };
 
