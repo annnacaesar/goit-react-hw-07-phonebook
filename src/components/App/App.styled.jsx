@@ -3,6 +3,7 @@ import styled from 'styled-components';
 export const AppContainer = styled.div`
 	box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.25);
 	display: flex;
+	min-height: 100vh;
 
 	justify-content: center;
 	font-size: 40px;
